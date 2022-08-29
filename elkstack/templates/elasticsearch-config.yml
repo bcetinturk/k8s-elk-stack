@@ -1,0 +1,14 @@
+{{- $nodeName  := .Values.esStatefulSetName -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-configmap
+data:
+  elasticsearch.yml: |
+    network.host: 0.0.0.0
+    discovery.seed_hosts:
+      - elasticsearch-service
+    cluster.initial_master_nodes:
+      {{- range untilStep 0 (.Values.replicaCount | int) 1 }}
+      - {{ $nodeName }}-{{ . }}
+      {{- end }}    
