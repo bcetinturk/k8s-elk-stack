@@ -38,4 +38,4 @@ spec:
             memory: "1Gi"
           limits:
             cpu: "1500m"
-            memory: "3072Gi"
+            memory: "3Gi"
