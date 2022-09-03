@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: true
+  tasks:    
+    - name: Add GlusterFS PPA
+      ansible.builtin.apt_repository:
+        repo: ppa:gluster/glusterfs-7
+        update_cache: true
+    
+    - name: Install GlusterFS
+      ansible.builtin.apt:
+        name: glusterfs-server
+    
+    - name: Enable and Start Glusterd
+      ansible.builtin.service:
+        name: glusterd
+        state: started
+        enabled: true
+
+- hosts: glusterfs-cluster-1
+  become: true
+  tasks:
+    - name: Set Host Lists
+      ansible.builtin.set_fact:
+        gluster_host_list: "{{ groups['all'] | map('extract', hostvars, ['ansible_host']) | join(':/gluster-data/brick ') }}:/gluster-data/brick"
+        gluster_peer_list: "{{ groups['peers'] | map('extract', hostvars, ['ansible_host']) }}"
+
+    - name: Add Peers
+      ansible.builtin.command:
+        cmd: gluster peer probe {{ item }}
+      loop: "{{ gluster_peer_list }}"
+
+    - name: Set Up a Replicated Volume
+      ansible.builtin.command:
+        cmd: "gluster volume create gv0 replica 3 {{ gluster_host_list }}"        

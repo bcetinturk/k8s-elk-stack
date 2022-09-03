@@ -1,0 +1,8 @@
+[all]
+glusterfs-cluster-1 ansible_host=192.168.3.10 ansible_ssh_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/glusterfs-cluster-1/virtualbox/private_key
+glusterfs-cluster-2 ansible_host=192.168.3.11 ansible_ssh_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/glusterfs-cluster-2/virtualbox/private_key
+glusterfs-cluster-3 ansible_host=192.168.3.12 ansible_ssh_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/glusterfs-cluster-3/virtualbox/private_key
+
+[peers]
+glusterfs-cluster-2
+glusterfs-cluster-3

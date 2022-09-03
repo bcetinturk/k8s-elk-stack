@@ -2,7 +2,9 @@
 # vi: set ft=ruby :
 
 machines = [
-  { "vm_name" => "glusterfs-cluster-1" }
+  { "vm_name" => "glusterfs-cluster-1", "ip" => "192.168.3.10" },
+  { "vm_name" => "glusterfs-cluster-2", "ip" => "192.168.3.11" },
+  { "vm_name" => "glusterfs-cluster-3", "ip" => "192.168.3.12" },
 ]
 
 Vagrant.configure("2") do |config|
@@ -12,7 +14,7 @@ Vagrant.configure("2") do |config|
     config.vm.define machine["vm_name"] do |vm_config|
 
       vm_config.vm.box = "ubuntu/focal64"
-      vm_config.vm.network "private_network", ip: "192.168.3.10"
+      vm_config.vm.network "private_network", ip: machine["ip"]
       
       vm_config.vm.provider "virtualbox" do |vb|
         vb.name = machine["vm_name"]
