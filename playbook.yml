@@ -47,21 +47,35 @@
     
     - name: Generate SSH key
       community.crypto.openssh_keypair:
-        path: /home/vagrant/id_rsa
+        path: /root/.ssh/id_rsa
     
     - name: Copy Public Key to Controller
       ansible.builtin.fetch:
-        src: /home/vagrant/id_rsa.pub
+        src: /root/.ssh/id_rsa.pub
         dest: /tmp/fetched
 
     - name: Set Public Key Path
       ansible.builtin.set_fact:
-        public_key_path: "/tmp/fetched/{{ inventory_hostname }}/home/vagrant/id_rsa.pub"
+        public_key_path: "/tmp/fetched/{{ inventory_hostname }}/root/.ssh/id_rsa.pub"
 
     - ansible.posix.authorized_key:
         user: vagrant
         key: "{{ lookup('file', public_key_path) }}"
-        path: /home/vagrant/.ssh/authorized_keys
+        path: /root/.ssh/authorized_keys
+      delegate_to: "{{ hostvars[item]['inventory_hostname'] }}"
+      loop: "{{ groups['all'] }}"
+    
+    - ansible.builtin.file:
+        path: /root/.ssh/authorized_keys
+        owner: root
+        group: root
+      delegate_to: "{{ hostvars[item]['inventory_hostname'] }}"
+      loop: "{{ groups['all'] }}"
+    
+    - ansible.builtin.file:
+        path: /root/.ssh
+        owner: root
+        group: root
       delegate_to: "{{ hostvars[item]['inventory_hostname'] }}"
       loop: "{{ groups['all'] }}"
 
@@ -85,3 +99,12 @@
         name: heketi.service
         state: restarted
         enabled: true
+
+    - name: Copy Heketi Topology File
+      ansible.builtin.copy:
+        src: heketi-topology.json
+        dest: /opt/heketi/heketi-topology.json
+    
+    - name: Create Topology
+      ansible.builtin.command:
+        cmd: /opt/heketi/heketi-cli --user=admin --secret=ivd7dfORN7QNeKVO topology load --json=/opt/heketi/heketi-topology.json

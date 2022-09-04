@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
         vb.customize [ "storageattach", machine["vm_name"], "--storagectl", "SCSI", "--medium", "#{Dir.home}/gluster-storage/#{machine['vm_name']}/gluster.vdi", "--port", "3", "--type", "hdd" ]
       end
 
-      vm_config.vm.provision "shell", path: "mount-disk.sh"
+      # vm_config.vm.provision "shell", path: "mount-disk.sh"
 
     end
 

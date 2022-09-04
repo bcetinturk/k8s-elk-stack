@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: elasticsearch-storage-class
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "http://192.168.3.10:8080"
+  clusterid: "d7d2a69822a2f5a377a4f9f70a22fd13"
+  restuser: "admin"
+  restuserkey: "ivd7dfORN7QNeKVO"
+  gidMin: "40000"
+  gidMax: "50000"
+  volumetype: "replicate:3"

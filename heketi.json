@@ -1,6 +1,6 @@
 {
   "_port_comment": "Heketi Server Port Number",
-  "port": "8082",
+  "port": "8080",
 
   "use_auth": false,
 
@@ -31,8 +31,8 @@
 
     "_sshexec_comment": "SSH username and private key file information",
     "sshexec": {
-      "keyfile": "/home/vagrant/id_rsa",
-      "user": "vagrant",
+      "keyfile": "/root/.ssh/id_rsa",
+      "user": "root",
       "port": "22",
       "fstab": "/etc/fstab"
     },
