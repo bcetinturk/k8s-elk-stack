@@ -1,0 +1,13 @@
+[Unit]
+Description=Heketi Server
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/heketi
+User=root
+ExecStart=/opt/heketi/heketi --config=/opt/heketi/heketi.json
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

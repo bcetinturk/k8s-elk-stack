@@ -30,6 +30,58 @@
         cmd: gluster peer probe {{ item }}
       loop: "{{ gluster_peer_list }}"
 
-    - name: Set Up a Replicated Volume
-      ansible.builtin.command:
-        cmd: "gluster volume create gv0 replica 3 {{ gluster_host_list }}"        
+    # - name: Set Up a Replicated Volume
+    #   ansible.builtin.command:
+    #     cmd: "gluster volume create gv0 replica 3 {{ gluster_host_list }}"
+
+    - name: Get Heketi Release
+      ansible.builtin.get_url:
+        url: https://github.com/heketi/heketi/releases/download/v10.4.0/heketi-v10.4.0-release-10.linux.amd64.tar.gz
+        dest: /tmp/heketi-v10.4.0-release-10.linux.amd64.tar.gz
+    
+    - name: Unarchive Heketi Archive
+      ansible.builtin.unarchive:
+        src: /tmp/heketi-v10.4.0-release-10.linux.amd64.tar.gz
+        dest: /opt
+        remote_src: true
+    
+    - name: Generate SSH key
+      community.crypto.openssh_keypair:
+        path: /home/vagrant/id_rsa
+    
+    - name: Copy Public Key to Controller
+      ansible.builtin.fetch:
+        src: /home/vagrant/id_rsa.pub
+        dest: /tmp/fetched
+
+    - name: Set Public Key Path
+      ansible.builtin.set_fact:
+        public_key_path: "/tmp/fetched/{{ inventory_hostname }}/home/vagrant/id_rsa.pub"
+
+    - ansible.posix.authorized_key:
+        user: vagrant
+        key: "{{ lookup('file', public_key_path) }}"
+        path: /home/vagrant/.ssh/authorized_keys
+      delegate_to: "{{ hostvars[item]['inventory_hostname'] }}"
+      loop: "{{ groups['all'] }}"
+
+    - name: Create DB Folder for Heketi
+      ansible.builtin.file:
+        path: /var/lib/heketi
+        state: directory
+
+    - name: Copy Heketi Configuration File
+      ansible.builtin.copy:
+        src: heketi.json
+        dest: /opt/heketi/heketi.json
+    
+    - name: Copy Heketi Service File
+      ansible.builtin.copy:
+        src: heketi.service
+        dest: /etc/systemd/system/heketi.service
+    
+    - name: Start and Enable Heketi Service
+      ansible.builtin.service:
+        name: heketi.service
+        state: restarted
+        enabled: true
